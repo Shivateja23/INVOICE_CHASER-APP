@@ -1,0 +1,368 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice Chaser</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f7fb;
+            color: #172033;
+        }
+
+        header {
+            background: #172554;
+            color: white;
+            padding: 24px 7%;
+        }
+
+        header h1 {
+            margin: 0 0 7px;
+        }
+
+        header p {
+            margin: 0;
+            color: #cbd5e1;
+        }
+
+        main {
+            max-width: 1150px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            gap: 18px;
+            margin-bottom: 25px;
+        }
+
+        .card, .panel {
+            background: white;
+            border-radius: 12px;
+            padding: 22px;
+            box-shadow: 0 3px 15px #1725540d;
+        }
+
+        .card p {
+            margin: 0 0 12px;
+            color: #64748b;
+        }
+
+        .card h2 {
+            margin: 0;
+            font-size: 27px;
+        }
+
+        .panel {
+            margin-bottom: 24px;
+        }
+
+        .panel h2 {
+            margin-top: 0;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+            gap: 15px;
+        }
+
+        label {
+            display: block;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 7px;
+        }
+
+        input {
+            width: 100%;
+            padding: 11px;
+            border: 1px solid #cbd5e1;
+            border-radius: 7px;
+            font-size: 14px;
+        }
+
+        button {
+            border: 0;
+            border-radius: 7px;
+            padding: 11px 15px;
+            background: #2563eb;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background: #1d4ed8;
+        }
+
+        .submit-row {
+            margin-top: 18px;
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 750px;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 14px 10px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        th {
+            color: #64748b;
+            font-size: 13px;
+        }
+
+        .status {
+            display: inline-block;
+            border-radius: 20px;
+            padding: 6px 10px;
+            background: #fef3c7;
+            color: #92400e;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .paid {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .overdue {
+            color: #dc2626;
+            font-weight: bold;
+        }
+
+        .small-button {
+            padding: 8px 10px;
+            font-size: 12px;
+        }
+
+        .empty {
+            color: #64748b;
+            padding: 20px 0;
+        }
+
+        @media (max-width: 600px) {
+            header {
+                padding: 22px;
+            }
+
+            main {
+                margin-top: 20px;
+                padding: 0 12px;
+            }
+
+            .card, .panel {
+                padding: 17px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>Invoice Chaser</h1>
+        <p>Track invoices. Follow up professionally. Get paid on time.</p>
+    </header>
+
+    <main>
+        <section class="stats">
+            <div class="card">
+                <p>Total Invoices</p>
+                <h2>{{ invoices | length }}</h2>
+            </div>
+
+            <div class="card">
+                <p>Total Outstanding</p>
+                <h2>₹{{ "%.2f"|format(total_unpaid) }}</h2>
+            </div>
+
+            <div class="card">
+                <p>Overdue Amount</p>
+                <h2 class="overdue">₹{{ "%.2f"|format(total_overdue) }}</h2>
+            </div>
+        </section>
+
+        <section class="panel">
+            <h2>Add New Invoice</h2>
+
+            <form action="/add" method="post">
+                <div class="form-grid">
+                    <div>
+                        <label for="client_name">Client Name *</label>
+                        <input id="client_name" name="client_name"
+                               maxlength="120" required>
+                    </div>
+
+                    <div>
+                        <label for="client_email">Client Email</label>
+                        <input id="client_email" name="client_email"
+                               type="email" maxlength="200">
+                    </div>
+
+
+                    <div class="form-group">
+                        <label>Client Phone (WhatsApp) *</label>
+                        <input type="text" name="phone" placeholder="e.g. 919876543210" required>
+                    </div>
+
+                    <div>
+                        <label for="invoice_number">Invoice Number *</label>
+                        <input id="invoice_number" name="invoice_number"
+                               maxlength="80" required>
+                    </div>
+
+                    <div>
+                        <label for="amount">Amount (₹) *</label>
+                        <input id="amount" name="amount" type="number"
+                               min="0.01" step="0.01" required>
+                    </div>
+
+                    <div>
+                        <label for="due_date">Due Date *</label>
+                        <input id="due_date" name="due_date"
+                               type="date" required>
+                    </div>
+                </div>
+
+                <div class="submit-row">
+                    <button type="submit">+ Add Invoice</button>
+                </div>
+            </form>
+        </section>
+
+        <section class="panel">
+            <h2>Invoice Records</h2>
+
+            {% if invoices %}
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Invoice</th>
+                            <th>Client</th>
+                            <th>Amount</th>
+                            <th>Due Date</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for invoice in invoices %}
+                        <tr>
+                            <td>{{ invoice.invoice_number }}</td>
+                            <td>
+                                {{ invoice.client_name }}
+                                {% if invoice.client_email %}
+                                <br>
+                                <small>{{ invoice.client_email }}</small>
+                                {% endif %}
+                            </td>
+                            <td>₹{{ "%.2f"|format(invoice.amount) }}</td>
+                            <td>{{ invoice.due_date }}</td>
+                            <td>
+                                {% if invoice.status == "Paid" %}
+                                <span class="status paid">Paid</span>
+                                {% elif invoice.is_overdue %}
+                                <span class="status overdue">Overdue</span>
+                                {% else %}
+                                <span class="status">Unpaid</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if invoice.status != "Paid" %}
+                                <form action="/mark-paid/{{ invoice.id }}"
+                                      method="post">
+                                    <button class="small-button" type="submit">
+                                        Mark Paid
+                                    </button>
+                                </form>
+
+
+                                <!-- Add the WhatsApp reminder button right here inside the same cell -->
+                                 <button onclick="generateReminder({{ invoice.id }})" class="small-button" style="margin-top: 5px; background-color: #25D366; color: white;">
+                                    send whatsapp reminder
+                                 </button>
+                                {% else %}
+                                <span class="text-gray-400">-</span>
+                                {% endif %}
+
+                                <form action="/delete-invoice/{{ invoice.id }}" method="post" style="display:inline; margin-left: 5px;" onsubmit="return confirm('Are you sure you want to delete this invoice?');">
+                                    <button class="small-button" type="submit" style="background-color: #dc3545; color: white;">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="empty">
+                No invoices yet. Add your first invoice above.
+            </p>
+            {% endif %}
+        </section>
+    </main>
+
+    <script>
+        async function generateReminder(invoiceId) {
+            
+    
+            try {
+                let response = await fetch(`/generate-reminder/${invoiceId}`, { method: 'POST' });
+                let data = await response.json();
+                if (response.ok) {
+                    let phone = data.phone ? data.phone.replace(/\D/g, '') : '';
+
+                    // If phone number is missing, fallback cleanly
+
+                    if (!phone) {
+                        phone = prompt("Enter client's WhatsApp number (e.g. 919876543210):");
+                        if (!phone) return;
+                    }
+                    
+                    // Clean up unwanted markdown bold asterisks if Gemini includes them
+                    let cleanMessage = data.reminder.replace(/\*\*/g, '').trim();
+
+
+                    // Encode message and open WhatsApp directly
+                    let encodedMessage = encodeURIComponent(cleanMessage);
+                    // Opens WhatsApp instantly in a new tab without blocking confirmation dialogs
+                    let whatsappUrl = `https://wa.me/${phone}?text=${encodedMessage}`;
+                    window.open(whatsappUrl, '_blank');
+                } else {
+                    alert("Error: " + data.detail);
+                }
+            } catch (err) {
+
+                // Instant fallback so the button never fails
+                let fallbackMsg = "Hi, this is a gentle reminder regarding your pending invoice. Please clear the payment at your earliest convenience. Thank you!";
+                let phone = prompt("Enter client WhatsApp number:", "91");
+                if (phone) {
+                    window.open(`https://wa.me/${phone.replace(/\D/g, '')}?text=${encodeURIComponent(fallbackMsg)}`, '_blank');
+                }
+            }
+        }
+    </script>
+</body>
+</html>
